@@ -7,29 +7,28 @@ Comprehensive test cases for validating data migration accuracy and integrity be
 
 ### Pre-Migration Data Validation
 
-#### TEST-PREMIG-001: Source Data Inventory
-**Description**: Validate source data completeness before migration
+#### TEST-PREMIG-001: Source Data Inventory - Krayin Tables
+**Description**: Validate Krayin source data completeness before migration
 **Priority**: Critical
 **Steps**:
-1. Count total records in each Laravel table
-2. Identify data types and constraints
-3. Document custom fields and relationships
+1. Count total records in each Krayin Laravel table
+2. Identify Krayin-specific data types and constraints
+3. Document JSON fields and pivot table relationships
 4. Export sample data for comparison
-**Tables to Validate**:
-- users
-- leads
-- contacts
-- deals
-- activities
-- organizations
-- emails
-- products
-- quotes
+**Krayin Tables to Validate**:
+- persons (name, emails JSON, contact_numbers JSON, organization_id, job_title)
+- organizations (name, address JSON)
+- leads (title, description, lead_value, status, person_id, user_id, lead_source_id, lead_type_id, lead_pipeline_id, lead_stage_id)
+- activities (title, type, comment, additional JSON, schedule_from, schedule_to, is_done, user_id)
+- emails (subject, source, user_type, name, reply, is_read, folders JSON, from JSON, sender JSON, reply_to JSON, cc JSON, bcc JSON, unique_id, message_id, reference_ids JSON, person_id, lead_id, parent_id)
+- quotes (subject, description, billing_address JSON, shipping_address JSON, discount_percent, discount_amount, tax_amount, adjustment_amount, sub_total, grand_total, expired_at, person_id, user_id)
+- products (sku, name, description, quantity, price)
+- Pivot tables: person_activities, lead_activities, product_activities, warehouse_activities, activity_participants, lead_products, quote_items, lead_quotes, email_attachments, activity_files
 **Expected Results**:
-- Complete record counts documented
-- Data types mapped correctly
-- Relationships identified
-- Sample data exported for validation
+- Complete record counts documented for all Krayin tables
+- JSON field structures mapped correctly
+- Pivot table relationships identified
+- Foreign key constraints documented
 
 #### TEST-PREMIG-002: Data Quality Assessment
 **Description**: Assess data quality issues before migration
@@ -48,33 +47,35 @@ Comprehensive test cases for validating data migration accuracy and integrity be
 - Cleanup requirements identified
 - Migration risk assessment complete
 
-### User Data Migration Tests
+### Person Data Migration Tests
 
-#### TEST-MIG-USER-001: User Account Migration
-**Description**: Verify user account data migration accuracy
+#### TEST-MIG-PERSON-001: Person Account Migration
+**Description**: Verify person account data migration from Krayin's persons table
 **Steps**:
-1. Compare user counts between systems
-2. Validate user profile data migration
-3. Check password hash preservation
-4. Verify role and permission mapping
+1. Compare person counts between Laravel and Django systems
+2. Validate person profile data migration (name, job_title)
+3. Check JSON field preservation (emails, contact_numbers arrays)
+4. Verify organization_id foreign key relationships
 **Data Points to Validate**:
 ```sql
--- Laravel (MySQL)
-SELECT COUNT(*) FROM users;
-SELECT id, name, email, created_at, updated_at FROM users LIMIT 10;
+-- Laravel (MySQL) - Krayin persons table
+SELECT COUNT(*) FROM persons;
+SELECT id, name, emails, contact_numbers, organization_id, job_title, created_at, updated_at FROM persons LIMIT 10;
 
--- Django (PostgreSQL)  
-SELECT COUNT(*) FROM auth_user;
-SELECT id, first_name, last_name, email, date_joined, last_login FROM auth_user LIMIT 10;
+-- Django (PostgreSQL) - Target structure
+SELECT COUNT(*) FROM crm_persons;
+SELECT id, name, emails, contact_numbers, organization_id, job_title, created_at, updated_at FROM crm_persons LIMIT 10;
 ```
 **Field Mapping Validation**:
-- Laravel `name` → Django `first_name` + `last_name`
-- Laravel `created_at` → Django `date_joined`
-- Laravel `updated_at` → Django `last_login`
+- Laravel `emails` JSON → Django `emails` JSON (array preservation)
+- Laravel `contact_numbers` JSON → Django `contact_numbers` JSON (array preservation)
+- Laravel `organization_id` → Django `organization_id` (foreign key integrity)
+- Laravel `job_title` → Django `job_title` (nullable field handling)
 **Expected Results**:
-- User counts match exactly
-- All user data preserved
-- Field mapping applied correctly
+- Person counts match exactly
+- All person data preserved including JSON arrays
+- JSON field structure maintained correctly
+- Foreign key relationships intact
 - No data loss or corruption
 
 #### TEST-MIG-USER-002: User Permission Migration
@@ -94,60 +95,45 @@ SELECT id, first_name, last_name, email, date_joined, last_login FROM auth_user 
 - Hierarchy relationships maintained
 - Custom permissions functional
 
-### Contact and Lead Migration Tests
+### Lead and Pipeline Migration Tests
 
-#### TEST-MIG-CONTACT-001: Contact Data Migration
-**Description**: Verify contact data migration accuracy
+#### TEST-MIG-LEAD-001: Lead Data Migration with Pipeline Structure
+**Description**: Verify lead data migration from Krayin's leads table with pipeline relationships
 **Steps**:
-1. Compare contact record counts
-2. Validate contact field mapping
-3. Check contact-organization relationships
-4. Verify custom field migration
-**Contact Field Mapping**:
+1. Compare lead record counts
+2. Validate lead pipeline and stage mapping
+3. Check decimal field precision (lead_value as decimal 12,4)
+4. Verify all foreign key relationships
+**Lead Field Mapping**:
 ```json
 {
   "laravel_field": "django_field",
-  "first_name": "first_name",
-  "last_name": "last_name", 
-  "email": "email",
-  "phone": "phone",
-  "organization": "organization_id",
-  "created_at": "created_at",
-  "updated_at": "updated_at"
+  "title": "title",
+  "description": "description", 
+  "lead_value": "lead_value",
+  "status": "status",
+  "lost_reason": "lost_reason",
+  "closed_at": "closed_at",
+  "person_id": "person_id",
+  "user_id": "user_id",
+  "lead_source_id": "lead_source_id",
+  "lead_type_id": "lead_type_id",
+  "lead_pipeline_id": "lead_pipeline_id",
+  "lead_stage_id": "lead_stage_id"
 }
 ```
-**Validation Queries**:
+**Pipeline Stage Validation**:
 ```sql
--- Record count comparison
-SELECT COUNT(*) FROM contacts; -- Laravel
-SELECT COUNT(*) FROM crm_contacts; -- Django
-
--- Sample data comparison
-SELECT id, first_name, last_name, email, phone FROM contacts ORDER BY id LIMIT 10;
-SELECT id, first_name, last_name, email, phone FROM crm_contacts ORDER BY id LIMIT 10;
+-- Verify lead_pipeline_stages relationships
+SELECT COUNT(*) FROM lead_pipeline_stages;
+SELECT lead_stage_id, lead_pipeline_id, probability, sort_order FROM lead_pipeline_stages LIMIT 10;
 ```
 **Expected Results**:
-- Contact counts identical
-- All field data preserved
-- Relationships maintained
-- Custom fields migrated
-
-#### TEST-MIG-LEAD-001: Lead Data Migration
-**Description**: Verify lead data migration accuracy
-**Steps**:
-1. Compare lead record counts
-2. Validate lead source mapping
-3. Check lead status migration
-4. Verify lead-contact relationships
-**Lead Status Mapping**:
-- Laravel statuses → Django choices
-- Custom statuses preserved
-- Status history maintained
-**Expected Results**:
-- Lead counts match exactly
-- Source mappings correct
-- Status values consistent
-- Conversion history preserved
+- Lead counts identical between systems
+- Pipeline stage relationships preserved
+- Decimal precision maintained for lead_value (12,4)
+- All foreign key constraints working
+- Boolean status field migrated correctly
 
 ### Deal and Opportunity Migration Tests
 

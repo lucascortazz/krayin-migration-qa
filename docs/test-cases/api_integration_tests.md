@@ -78,33 +78,39 @@ Comprehensive test cases for validating REST API functionality parity between La
 
 ### Lead Management API Tests
 
-#### TEST-API-LEAD-001: Get All Leads
-**Description**: Verify leads list API endpoint
+#### TEST-API-LEAD-001: Get All Leads via LeadController
+**Description**: Verify leads list API endpoint using Krayin's LeadController
 **Endpoint**: `GET /api/leads`
 **Steps**:
 1. Make authenticated request to leads endpoint
-2. Verify response format and pagination
-3. Test filtering parameters
-4. Validate data structure
+2. Verify response format and pagination via LeadDataGrid
+3. Test filtering parameters based on Krayin's lead structure
+4. Validate data structure matches leads table schema
 **Query Parameters**:
 - `page`: Page number for pagination
 - `per_page`: Number of records per page
-- `status`: Filter by lead status
-- `source`: Filter by lead source
+- `lead_pipeline_id`: Filter by pipeline
+- `lead_stage_id`: Filter by stage
+- `person_id`: Filter by associated person
+- `lead_source_id`: Filter by lead source
 **Expected Response**:
 ```json
 {
   "data": [
     {
       "id": 1,
-      "title": "Mr.",
-      "first_name": "John",
-      "last_name": "Doe",
-      "email": "john@example.com",
-      "phone": "+1234567890",
-      "organization": "Acme Corp",
-      "status": "new",
-      "source": "website",
+      "title": "Enterprise Software Opportunity",
+      "description": "Large enterprise client interested in CRM",
+      "lead_value": "50000.0000",
+      "status": true,
+      "lost_reason": null,
+      "closed_at": null,
+      "person_id": 5,
+      "user_id": 2,
+      "lead_source_id": 1,
+      "lead_type_id": 1,
+      "lead_pipeline_id": 1,
+      "lead_stage_id": 3,
       "created_at": "2025-07-24T10:00:00Z",
       "updated_at": "2025-07-24T10:00:00Z"
     }
@@ -118,91 +124,60 @@ Comprehensive test cases for validating REST API functionality parity between La
 }
 ```
 
-#### TEST-API-LEAD-002: Create New Lead
-**Description**: Verify lead creation via API
+#### TEST-API-LEAD-002: Create New Lead via LeadController
+**Description**: Verify lead creation via API using Krayin's actual schema
 **Endpoint**: `POST /api/leads`
 **Steps**:
-1. Send valid lead data
-2. Verify lead creation
-3. Test required field validation
-4. Check response format
+1. Send valid lead data matching leads table structure
+2. Verify lead creation with proper foreign key relationships
+3. Test required field validation via LeadForm
+4. Check response format using LeadResource
 **Request Body**:
 ```json
 {
-  "title": "Ms.",
-  "first_name": "Jane",
-  "last_name": "Smith",
-  "email": "jane.smith@techcorp.com",
-  "phone": "+1987654321",
-  "organization": "Tech Corp",
-  "status": "new",
-  "source": "referral"
+  "title": "New Enterprise Opportunity",
+  "description": "Potential large enterprise client",
+  "lead_value": "75000.0000",
+  "status": true,
+  "person_id": 3,
+  "user_id": 1,
+  "lead_source_id": 2,
+  "lead_type_id": 1,
+  "lead_pipeline_id": 1,
+  "lead_stage_id": 1
 }
 ```
-**Expected Response**: HTTP 201 with created lead data
+**Expected Response**: HTTP 201 with created lead data formatted by LeadResource
 
-#### TEST-API-LEAD-003: Update Existing Lead
-**Description**: Verify lead update functionality
-**Endpoint**: `PUT /api/leads/{id}`
-**Steps**:
-1. Update existing lead data
-2. Verify partial updates (PATCH)
-3. Test validation on updates
-4. Check response consistency
-**Request Body**:
-```json
-{
-  "status": "qualified",
-  "phone": "+1987654322"
-}
-```
+### Person Management API Tests
 
-#### TEST-API-LEAD-004: Delete Lead
-**Description**: Verify lead deletion via API
-**Endpoint**: `DELETE /api/leads/{id}`
-**Steps**:
-1. Delete existing lead
-2. Verify soft delete vs hard delete
-3. Test deletion authorization
-4. Check cascade deletion rules
-**Expected Results**:
-- HTTP 204 No Content on success
-- Lead marked as deleted
-- Related data handled appropriately
-
-### Contact Management API Tests
-
-#### TEST-API-CONTACT-001: Contact CRUD Operations
-**Description**: Verify complete contact CRUD functionality
+#### TEST-API-PERSON-001: Person CRUD Operations via PersonController
+**Description**: Verify complete person CRUD functionality using Krayin's PersonController
 **Endpoints**: 
-- `GET /api/contacts`
-- `POST /api/contacts`
-- `PUT /api/contacts/{id}`
-- `DELETE /api/contacts/{id}`
+- `GET /api/persons` - List persons via PersonDataGrid
+- `POST /api/persons` - Create person via AttributeForm
+- `PUT /api/persons/{id}` - Update person
+- `DELETE /api/persons/{id}` - Delete person
 **Steps**:
-1. Test contact listing with pagination
-2. Create new contact with validation
-3. Update contact information
-4. Delete contact record
+1. Test person listing with JSON field handling (emails, contact_numbers)
+2. Create new person with organization relationship
+3. Update person information including JSON fields
+4. Delete person record and verify cascade effects
+**Person Data Structure**:
+```json
+{
+  "name": "Jane Smith",
+  "emails": ["jane@company.com", "jane@personal.com"],
+  "contact_numbers": ["+1234567890", "+1987654321"],
+  "organization_id": 5,
+  "job_title": "Marketing Director"
+}
+```
 **Validation Points**:
-- All CRUD operations work correctly
-- Data validation enforced
-- Response formats consistent
-- Error handling appropriate
-
-#### TEST-API-CONTACT-002: Contact Search and Filtering
-**Description**: Verify contact search API functionality
-**Endpoint**: `GET /api/contacts/search`
-**Steps**:
-1. Search contacts by name
-2. Search by email address
-3. Filter by organization
-4. Test advanced search combinations
-**Query Parameters**:
-- `q`: Search query string
-- `organization_id`: Filter by organization
-- `type`: Filter by contact type
-- `tags`: Filter by tags
+- PersonResource formatting consistent
+- JSON field operations work correctly
+- Organization_id foreign key enforced
+- AttributeForm validation applied
 
 ### Deal Management API Tests
 

@@ -1,68 +1,105 @@
 # Lead Management Tests
 
 ## Overview
-Comprehensive test cases for validating lead management functionality parity between Laravel and Django implementations.
+Comprehensive test cases for validating lead management functionality parity between Laravel and Django implementations based on Krayin's actual schema.
 
 ## Test Cases
 
 ### Lead Creation
 
 #### TEST-LEAD-001: Create New Lead - Valid Data
-**Description**: Verify lead creation with valid data
+**Description**: Verify lead creation with Krayin's actual lead structure
 **Priority**: High
 **Preconditions**: User logged in with lead creation permissions
 **Steps**:
 1. Navigate to leads section
-2. Click "Create New Lead" button
-3. Fill in required fields:
-   - First Name: "John"
-   - Last Name: "Doe"
-   - Email: "john.doe@example.com"
-   - Phone: "+1234567890"
-   - Company: "Acme Corp"
-   - Source: "Website"
-4. Click Save
+2. Click "Create" button
+3. Fill in required fields based on leads table schema:
+   - Title: "Enterprise Software Opportunity"
+   - Description: "Large enterprise client interested in CRM solution"
+   - Lead Value: "50000.00" (decimal 12,4)
+   - Status: true/false (boolean)
+   - Person: Select from persons table (person_id foreign key)
+   - Lead Source: Select from lead_sources table (lead_source_id)
+   - Lead Type: Select from lead_types table (lead_type_id)
+   - Lead Pipeline: Select from lead_pipelines table (lead_pipeline_id)
+   - Lead Stage: Select from lead_stages table (lead_stage_id)
+   - Assigned User: Select from users table (user_id)
+4. Click "Save" button
 **Expected Results**:
-- Lead created successfully
-- Success message displayed
-- Lead appears in leads list
-- All data saved correctly
-- Laravel and Django behavior identical
+- Lead created successfully in leads table
+- All foreign key relationships established correctly
+- Lead appears in leads list with proper stage
+- LeadController processes request via LeadForm validation
+- Lead value stored as decimal(12,4)
 
-#### TEST-LEAD-002: Create Lead - Missing Required Fields
-**Description**: Verify validation for missing required fields
+#### TEST-LEAD-002: Lead Pipeline and Stage Management
+**Description**: Verify Krayin's lead pipeline system
 **Steps**:
-1. Navigate to lead creation form
-2. Leave required fields empty
-3. Attempt to save
+1. Create lead in specific pipeline (lead_pipeline_id)
+2. Assign to pipeline stage (lead_stage_id)
+3. Move lead through pipeline stages
+4. Verify lead_pipeline_stages table relationships
 **Expected Results**:
-- Validation errors displayed
-- Form does not submit
-- Error messages identical in both systems
+- Lead properly assigned to pipeline
+- Stage progression tracked through lead_pipeline_stages
+- Probability and sort_order values maintained
+- Stage history preserved
 
-#### TEST-LEAD-003: Create Lead - Duplicate Email
-**Description**: Verify duplicate email handling
+#### TEST-LEAD-003: Lead-Person Relationship
+**Description**: Verify lead connection to persons table
 **Steps**:
-1. Create lead with email "test@example.com"
-2. Attempt to create another lead with same email
+1. Select existing person from persons table
+2. Create lead with person_id foreign key
+3. Verify bidirectional relationship
+4. Check person's lead history
 **Expected Results**:
-- Appropriate error message about duplicate email
-- Second lead not created
+- Lead linked to person via person_id foreign key
+- Person shows associated leads
+- Cascade delete rules working (person deletion affects leads)
+- Relationship data consistent
 - Behavior consistent between systems
 
 ### Lead Listing and Search
 
-#### TEST-LEAD-004: Lead List Display
-**Description**: Verify leads are displayed correctly in list view
+#### TEST-LEAD-004: Lead Activities Integration
+**Description**: Verify lead activity tracking via lead_activities table
 **Steps**:
-1. Navigate to leads list
-2. Verify column headers
-3. Check data display for multiple leads
+1. Create activities for lead
+2. Link activities via lead_activities pivot table
+3. Track activity history
+4. Verify activity_files attachments
 **Expected Results**:
-- All leads displayed
-- Correct column headers
-- Data formatting consistent
-- Pagination works identically
+- Activities properly linked via lead_activities table
+- Activity history displays chronologically
+- File attachments tracked in activity_files
+- Activity participants managed via activity_participants
+
+#### TEST-LEAD-005: Lead Products Association
+**Description**: Verify lead-product relationships
+**Steps**:
+1. Associate products with lead via lead_products table
+2. Set product quantities and pricing
+3. Calculate lead value from products
+4. Verify product inventory impact
+**Expected Results**:
+- Products linked via lead_products pivot table
+- Quantities and pricing saved correctly
+- Lead value calculated from associated products
+- Product inventory tracked if applicable
+
+#### TEST-LEAD-006: Lead Status and Closure
+**Description**: Verify lead status management and closure process
+**Steps**:
+1. Set lead status to true (active) or false (inactive)
+2. Close lead with lost_reason
+3. Set closed_at timestamp
+4. Verify status change impact on pipeline
+**Expected Results**:
+- Status boolean field updates correctly
+- Lost reason captured when applicable
+- Closed timestamp recorded accurately
+- Pipeline metrics updated accordingly
 
 #### TEST-LEAD-005: Lead Search Functionality
 **Description**: Verify lead search works correctly

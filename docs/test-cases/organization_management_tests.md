@@ -1,75 +1,73 @@
-# Organization Management Tests
+# Organization1. Navigate to organizations section
+2. Click "Create" button
+3. Fill in required fields based on organizations table schema:nagement Tests
 
 ## Overview
-Comprehensive test cases for validating organization/company management functionality parity between Laravel and Django implementations.
+Comprehensive test cases for validating organization management functionality based on Krayin's actual organizations table schema and relationships.
 
 ## Test Cases
 
 ### Organization Creation and Management
 
-#### TEST-ORG-001: Create New Organization - Valid Data
-**Description**: Verify organization creation with complete information
+#### TEST-ORG-001: Create New Organization - Krayin Schema
+**Description**: Verify organization creation with Krayin's actual organizations table structure
 **Priority**: High
 **Preconditions**: User logged in with organization management permissions
 **Steps**:
 1. Navigate to organizations section
-2. Click "Create New Organization"
-3. Fill in organization details:
-   - Organization Name: "TechCorp Solutions"
-   - Industry: "Software Development"
-   - Website: "https://techcorp.com"
-   - Phone: "+1-555-123-4567"
-   - Email: "info@techcorp.com"
-   - Address: "123 Tech Street, Silicon Valley, CA 94000"
-   - Number of Employees: "500-1000"
-   - Annual Revenue: "$50M - $100M"
-   - Description: "Leading software solutions provider"
+2. Click "Create Organization" button
+3. Fill in required fields based on organizations table schema:
+   - Name: "TechCorp Solutions" (string field)
+   - Address: JSON object with street, city, state, country, postal_code
+4. Click "Save" button
+**Expected Results**:
 4. Save organization
 **Expected Results**:
-- Organization created successfully
-- All fields saved correctly
+- Organization created successfully in organizations table
+- Name field saved correctly
+- Address stored as JSON with proper structure
 - Organization appears in organizations list
-- Data validation works properly
+- JSON address field searchable and filterable
 - Behavior identical between Laravel and Django
 
-#### TEST-ORG-002: Organization Hierarchy Management
-**Description**: Verify parent-child organization relationships
+#### TEST-ORG-002: Organization-Person Relationships
+**Description**: Verify organization relationships with persons via organization_id
 **Steps**:
-1. Create parent organization "TechCorp Inc"
-2. Create subsidiary "TechCorp Europe"
-3. Set parent-child relationship
-4. Verify hierarchy display
+1. Create organization
+2. Associate persons via organization_id foreign key in persons table
+3. View organization's person list
+4. Test cascade delete behavior
 **Expected Results**:
-- Hierarchy relationships established
-- Tree view displays correctly
-- Parent-child navigation works
-- Relationship data consistent
+- Persons linked to organization via organization_id foreign key
+- Organization shows all associated persons
+- Cascade delete rules working (organization deletion affects persons)
+- Relationship data consistent and bidirectional
 
-#### TEST-ORG-003: Organization Contact Association
-**Description**: Verify contacts can be associated with organizations
+#### TEST-ORG-003: Organization JSON Address Management
+**Description**: Verify JSON address field functionality
 **Steps**:
-1. Select existing organization
-2. Add contacts to organization
-3. Set primary contact
-4. Verify contact-organization relationship
+1. Create organization with complex address JSON
+2. Update individual address components
+3. Search organizations by address components
+4. Validate JSON structure integrity
 **Expected Results**:
-- Contacts linked to organization
-- Primary contact designation works
-- Organization shows all contacts
-- Relationship bidirectional
+- Complex address JSON stored correctly
+- Individual address components updateable
+- Address search functional within JSON structure
+- JSON validation prevents malformed data
 
-#### TEST-ORG-004: Organization Custom Fields
-**Description**: Verify custom field functionality for organizations
+#### TEST-ORG-004: Organization Custom Attributes
+**Description**: Verify custom attributes for organizations via attribute system
 **Steps**:
-1. Create custom fields for organizations
-2. Add custom field values
-3. Edit custom field data
-4. Verify field validation
+1. Create custom attributes for organizations entity_type
+2. Assign attribute values via attribute_values table
+3. Filter organizations by custom attributes
+4. Validate attribute data types
 **Expected Results**:
-- Custom fields display correctly
-- Data saves properly
-- Validation rules enforced
-- Field types supported
+- Custom attributes created for 'organizations' entity_type
+- Attribute values stored in attribute_values table correctly
+- Attribute-based filtering functional
+- Data type validation enforced
 
 ### Organization Search and Filtering
 

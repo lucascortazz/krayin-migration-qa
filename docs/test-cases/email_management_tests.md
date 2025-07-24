@@ -1,53 +1,78 @@
 # Email Management Tests
 
 ## Overview
-Comprehensive test cases for validating email management and communication functionality parity between Laravel and Django implementations.
+Comprehensive test cases for validating email management and communication functionality based on Krayin's actual emails table schema and email system.
 
 ## Test Cases
 
-### Email Configuration and Setup
+### Email Storage and Management
 
-#### TEST-EMAIL-001: Email Configuration Setup
-**Description**: Verify email server configuration and connection
+#### TEST-EMAIL-001: Email Record Creation - Krayin Schema
+**Description**: Verify email creation with Krayin's actual emails table structure
 **Priority**: High
-**Preconditions**: SMTP/IMAP server credentials available
+**Preconditions**: Email system configured and operational
 **Steps**:
-1. Configure SMTP settings for outgoing mail
-2. Configure IMAP settings for incoming mail
-3. Test connection to mail servers
-4. Verify SSL/TLS encryption settings
+1. Send email from CRM system
+2. Verify email record creation in emails table with:
+   - Subject: Email subject line
+   - Source: Email source identifier
+   - User Type: Type of user sending email
+   - Name: Sender/recipient name
+   - Reply: Email content/body
+   - Is Read: Boolean read status (default 0)
+   - Folders: JSON field for folder categorization
+   - From/Sender/Reply To/CC/BCC: JSON fields for email addresses
+   - Unique ID: Unique email identifier
+   - Message ID: Email message identifier (unique)
+   - Reference IDs: JSON field for email threading
+3. Link email to person (person_id) or lead (lead_id)
 **Expected Results**:
-- SMTP connection established successfully
-- IMAP connection working properly
-- SSL/TLS encryption functional
-- Configuration saves correctly
-- Settings identical between Laravel and Django
+- Email record created successfully in emails table
+- All JSON fields (folders, from, sender, reply_to, cc, bcc, reference_ids) store data correctly
+- Person_id or lead_id foreign key relationships established
+- Unique constraints enforced on unique_id and message_id
+- Email threading via reference_ids functional
 
-#### TEST-EMAIL-002: Email Account Management
-**Description**: Verify multiple email account support
+#### TEST-EMAIL-002: Email Threading and Relationships
+**Description**: Verify email threading via parent_id and reference_ids
 **Steps**:
-1. Add primary email account
-2. Add secondary email accounts
-3. Set default sending account
-4. Configure account-specific signatures
+1. Send initial email to person/lead
+2. Receive reply email creating thread relationship
+3. Set parent_id to link reply to original email
+4. Update reference_ids JSON with threading information
+5. Verify cascade delete behavior via parent_id foreign key
 **Expected Results**:
-- Multiple accounts supported
-- Default account selection works
-- Account-specific settings preserved
-- Signature management functional
+- Email threads maintained via parent_id relationships
+- Reference_ids JSON stores threading metadata correctly
+- Email conversation history displays chronologically
+- Cascade delete rules working (parent email deletion affects children)
+- Thread integrity maintained across system
 
-#### TEST-EMAIL-003: Email Template Management
-**Description**: Verify email template creation and management
+#### TEST-EMAIL-003: Email Attachments Management
+**Description**: Verify email attachments via email_attachments table
 **Steps**:
-1. Create new email template
-2. Add dynamic placeholders
-3. Design template layout
-4. Test template preview
+1. Send email with file attachments
+2. Store attachments via email_attachments table
+3. Link attachments to email record
+4. Test attachment download and access
 **Expected Results**:
-- Templates create successfully
-- Placeholders work correctly
-- Layout rendering proper
-- Preview displays accurately
+- Attachments properly linked via email_attachments table
+- File metadata stored correctly
+- Attachment access controls working
+- Download functionality operational
+
+#### TEST-EMAIL-004: Email Tags Integration
+**Description**: Verify email tagging via email_tags table
+**Steps**:
+1. Create email tags for categorization
+2. Associate emails with tags via email_tags table
+3. Filter emails by tag associations
+4. Manage tag hierarchies and relationships
+**Expected Results**:
+- Email tags created and managed via email_tags table
+- Tag associations functional
+- Tag-based filtering operational
+- Tag management interface working
 
 ### Email Sending and Receiving
 

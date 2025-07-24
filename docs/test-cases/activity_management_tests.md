@@ -1,78 +1,76 @@
 # Activity Management Tests
 
 ## Overview
-Comprehensive test cases for validating activity and task management functionality parity between Laravel and Django implementations.
+Comprehensive test cases for validating activity and task management functionality based on Krayin's actual activities schema and pivot table relationships.
 
 ## Test Cases
 
 ### Activity Creation and Management
 
-#### TEST-ACTIVITY-001: Create New Activity - Valid Data
-**Description**: Verify activity creation with complete information
+#### TEST-ACTIVITY-001: Create New Activity - Krayin Schema
+**Description**: Verify activity creation with Krayin's actual activities table structure
 **Priority**: High
 **Preconditions**: User logged in with activity management permissions
 **Steps**:
 1. Navigate to activities section
 2. Click "Create New Activity"
-3. Fill in activity details:
+3. Fill in activity details based on activities table:
    - Title: "Follow-up call with prospect"
-   - Type: "Phone Call"
-   - Priority: "High"
-   - Due Date: "2025-07-26"
-   - Due Time: "14:00"
-   - Duration: "30 minutes"
-   - Description: "Discuss proposal details and answer questions"
-   - Assigned To: "John Smith"
-   - Related To: Select contact "Jane Doe"
+   - Type: "call" (string field for activity type)
+   - Comment: "Discuss proposal details and answer questions"
+   - Additional: JSON field for extra activity data
+   - Schedule From: "2025-07-26 14:00:00" (datetime)
+   - Schedule To: "2025-07-26 14:30:00" (datetime)
+   - Is Done: false (boolean default 0)
+   - User: Assign to user (user_id foreign key)
 4. Save activity
 **Expected Results**:
-- Activity created successfully
-- All fields saved correctly
+- Activity created successfully in activities table
+- All datetime fields stored correctly with timezone handling
+- JSON additional field stores extra data properly
+- User assignment via user_id foreign key functional
 - Activity appears in activity list
-- Due date/time stored with correct timezone
 - Behavior identical between Laravel and Django
 
-#### TEST-ACTIVITY-002: Activity Type Management
-**Description**: Verify different activity types are supported
+#### TEST-ACTIVITY-002: Activity Entity Relationships
+**Description**: Verify activity relationships via entity-specific pivot tables
 **Steps**:
-1. Create activities of different types:
-   - Meeting
-   - Phone Call
-   - Email
-   - Task
-   - Site Visit
-2. Verify each type saves correctly
+1. Create activity for person via person_activities table
+2. Create activity for lead via lead_activities table
+3. Create activity for product via product_activities table
+4. Create activity for warehouse via warehouse_activities table
 **Expected Results**:
-- All activity types supported
-- Type-specific fields available
-- Icons/colors display correctly
-- Type filtering works
+- Person activities linked via person_activities pivot table
+- Lead activities linked via lead_activities pivot table
+- Product activities linked via product_activities pivot table
+- Warehouse activities linked via warehouse_activities pivot table
+- All pivot relationships maintain referential integrity
 
-#### TEST-ACTIVITY-003: Activity Assignment
-**Description**: Verify activities can be assigned to team members
+#### TEST-ACTIVITY-003: Activity Participants Management
+**Description**: Verify activity participants via activity_participants table
 **Steps**:
-1. Create activity assigned to specific user
-2. Verify assignee receives notification
-3. Check activity appears in assignee's calendar
-4. Test reassignment functionality
+1. Create activity with multiple participants
+2. Add participants via activity_participants table
+3. Set participant roles and responses
+4. Track participant engagement
 **Expected Results**:
-- Assignment saves correctly
-- Notifications sent appropriately
-- Calendar integration works
-- Reassignment updates properly
+- Participants linked via activity_participants table
+- Multiple participants supported per activity
+- Participant metadata stored correctly
+- Participation tracking functional
 
-#### TEST-ACTIVITY-004: Activity Completion
-**Description**: Verify activity completion workflow
+#### TEST-ACTIVITY-004: Activity Files and Attachments
+**Description**: Verify activity file attachments via activity_files table
 **Steps**:
-1. Mark activity as completed
-2. Add completion notes
-3. Record actual duration
-4. Verify status change
+1. Create activity with file attachments
+2. Upload files via activity_files table
+3. Associate files with activity
+4. Test file download and access
 **Expected Results**:
-- Status updated to completed
-- Completion timestamp recorded
-- Notes saved properly
-- Activity moves to completed list
+- Files properly linked via activity_files table
+- File metadata stored correctly
+- File access controls working
+- Download functionality operational
 
 ### Activity Calendar Integration
 

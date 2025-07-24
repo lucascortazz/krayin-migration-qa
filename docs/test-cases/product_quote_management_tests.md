@@ -1,177 +1,121 @@
 # Product and Quote Management Tests
 
 ## Overview
-Comprehensive test cases for validating product catalog and quote management functionality parity between Laravel and Django implementations.
+Comprehensive test cases for validating product catalog and quote management functionality based on Krayin's actual schema and implementation.
 
 ## Test Cases
 
 ### Product Catalog Management
 
-#### TEST-PRODUCT-001: Create New Product - Valid Data
-**Description**: Verify product creation with complete information
+#### TEST-PRODUCT-001: Create New Product - Krayin Schema
+**Description**: Verify product creation with Krayin's actual product table structure
 **Priority**: High
 **Preconditions**: User logged in with product management permissions
 **Steps**:
 1. Navigate to products section
 2. Click "Create New Product"
-3. Fill in product details:
-   - Product Name: "Enterprise CRM License"
-   - SKU: "CRM-ENT-001"
-   - Category: "Software"
+3. Fill in product details based on products table:
+   - SKU: "CRM-ENT-001" (unique constraint)
+   - Name: "Enterprise CRM License"
    - Description: "Full-featured CRM solution for enterprises"
-   - Unit Price: "$999.00"
-   - Cost Price: "$299.00"
-   - Weight: "0.1 kg"
-   - Dimensions: "N/A"
-   - Status: "Active"
+   - Quantity: 100 (integer default 0)
+   - Price: "999.0000" (decimal 12,4)
 4. Save product
 **Expected Results**:
-- Product created successfully
+- Product created successfully in products table
+- SKU uniqueness enforced by database constraint
+- Quantity stored as integer with default 0
+- Price stored as decimal(12,4) format
 - All fields saved correctly
-- Product appears in product catalog
-- SKU uniqueness enforced
 - Behavior identical between Laravel and Django
 
-#### TEST-PRODUCT-002: Product Category Management
-**Description**: Verify product category creation and hierarchy
+#### TEST-PRODUCT-002: Product Inventory Management
+**Description**: Verify product inventory tracking via product_inventories table
 **Steps**:
-1. Create parent category "Software"
-2. Create subcategory "CRM Solutions"
-3. Assign products to categories
-4. Verify category hierarchy display
+1. Create product with initial quantity
+2. Track inventory via product_inventories table
+3. Link to warehouses table if applicable
+4. Monitor inventory changes
 **Expected Results**:
-- Categories create successfully
-- Hierarchy relationships work
-- Product categorization functional
-- Category navigation intuitive
+- Product quantity tracked accurately
+- Inventory movements logged in product_inventories
+- Warehouse associations maintained
+- Stock levels updated correctly
 
-#### TEST-PRODUCT-003: Product Pricing Management
-**Description**: Verify product pricing and discount functionality
+#### TEST-PRODUCT-003: Product Activities and Tags
+**Description**: Verify product activity tracking and tagging
 **Steps**:
-1. Set base price for product
-2. Create tiered pricing structure
-3. Apply volume discounts
-4. Test promotional pricing
+1. Associate activities with products via product_activities table
+2. Tag products via product_tags table
+3. Track product-related communications
+4. Monitor product engagement
 **Expected Results**:
-- Base pricing saves correctly
-- Tiered pricing calculates properly
-- Volume discounts apply automatically
-- Promotional pricing temporary
-
-#### TEST-PRODUCT-004: Product Inventory Tracking
-**Description**: Verify product inventory management
-**Steps**:
-1. Set initial stock quantity
-2. Configure low stock alerts
-3. Track inventory movements
-4. Test stock reservation for quotes
-**Expected Results**:
-- Stock quantities tracked accurately
-- Alerts trigger at correct thresholds
-- Movements logged properly
-- Reservations handled correctly
-
-### Product Variations and Attributes
-
-#### TEST-PRODUCT-005: Product Variants Management
-**Description**: Verify product variant functionality
-**Steps**:
-1. Create parent product "CRM License"
-2. Add variants (Small, Medium, Large)
-3. Set variant-specific pricing
-4. Configure variant attributes
-**Expected Results**:
-- Variants create successfully
-- Individual pricing works
-- Attributes save properly
-- Variant selection functional
-
-#### TEST-PRODUCT-006: Product Attributes and Custom Fields
-**Description**: Verify custom product attributes
-**Steps**:
-1. Create custom attributes (Color, Size, Material)
-2. Assign attributes to products
-3. Set attribute values
-4. Use attributes in filtering
-**Expected Results**:
-- Attributes create successfully
-- Assignment works correctly
-- Values save properly
-- Filtering functional
-
-#### TEST-PRODUCT-007: Product Images and Media
-**Description**: Verify product media management
-**Steps**:
-1. Upload product images
-2. Set primary product image
-3. Add product videos/documents
-4. Verify media display
-**Expected Results**:
-- Images upload successfully
-- Primary image designation works
-- Multiple media types supported
-- Display renders correctly
+- Product activities tracked via product_activities pivot table
+- Product tags managed via product_tags table
+- Activity history maintained for products
+- Tag-based filtering functional
 
 ### Quote Creation and Management
 
-#### TEST-QUOTE-001: Create New Quote - Valid Data
-**Description**: Verify quote creation with complete information
+#### TEST-QUOTE-001: Create New Quote - Krayin Schema
+**Description**: Verify quote creation with Krayin's actual quotes table structure
 **Steps**:
 1. Navigate to quotes section
 2. Click "Create New Quote"
-3. Fill in quote details:
-   - Quote Number: "QUO-2025-001"
-   - Customer: Select existing contact
-   - Valid Until: "2025-08-15"
-   - Currency: "USD"
-   - Terms and Conditions: Standard terms
-4. Add quote line items
-5. Save quote
+3. Fill in quote details based on quotes table:
+   - Subject: "Enterprise CRM Proposal"
+   - Description: "Annual CRM license proposal"
+   - Person: Select from persons table (person_id foreign key)
+   - User: Assign to user (user_id foreign key)
+   - Billing Address: JSON field for address data
+   - Shipping Address: JSON field for shipping info
+   - Expired At: "2025-08-15 23:59:59"
+4. Save quote
 **Expected Results**:
-- Quote created successfully
-- Quote number auto-generated or manual entry
-- Customer association works
-- Line items calculate correctly
-- Total amounts accurate
+- Quote created successfully in quotes table
+- Person and user relationships established via foreign keys
+- Address data stored as JSON in billing_address/shipping_address
+- Expiration date stored as datetime
+- Quote appears in quotes list
 
-#### TEST-QUOTE-002: Quote Line Item Management
-**Description**: Verify quote line item functionality
+#### TEST-QUOTE-002: Quote Line Items via quote_items Table
+**Description**: Verify quote line item functionality using Krayin's quote_items table
 **Steps**:
-1. Add products to quote
-2. Specify quantities and unit prices
-3. Apply discounts to line items
-4. Calculate line totals
+1. Add products to quote via quote_items table
+2. Set product quantities and unit prices
+3. Calculate line totals with discount handling
+4. Verify quote_items foreign key relationships
 **Expected Results**:
-- Products add to quote correctly
-- Quantity/price modifications work
-- Discounts apply properly
-- Calculations accurate
+- Products linked via quote_items table correctly
+- Quantity and pricing calculations accurate
+- Line-level discounts applied properly
+- Foreign key constraints maintained
 
-#### TEST-QUOTE-003: Quote Pricing and Calculations
-**Description**: Verify quote pricing calculations
+#### TEST-QUOTE-003: Quote Financial Calculations
+**Description**: Verify Krayin's quote financial calculation fields
 **Steps**:
-1. Add multiple line items
-2. Apply line-level discounts
-3. Add quote-level discount
-4. Calculate taxes and totals
+1. Add multiple line items to quote
+2. Apply discount_percent and discount_amount
+3. Calculate tax_amount and adjustment_amount
+4. Verify sub_total and grand_total calculations
 **Expected Results**:
-- Subtotals calculate correctly
-- Discounts apply in proper order
+- All decimal(12,4) fields calculate correctly
+- Discount calculations (percent vs amount) work properly
 - Tax calculations accurate
-- Grand total correct
+- Grand total reflects all adjustments
 
-#### TEST-QUOTE-004: Quote Templates and Customization
-**Description**: Verify quote template functionality
+#### TEST-QUOTE-004: Quote-Lead Integration
+**Description**: Verify quote-lead relationships via lead_quotes table
 **Steps**:
-1. Create custom quote template
-2. Add company branding
-3. Customize layout and fields
-4. Generate quote PDF
+1. Create quote for existing lead
+2. Link via lead_quotes pivot table
+3. Track quote progression in lead pipeline
+4. Verify quote impact on lead value
 **Expected Results**:
-- Templates create successfully
-- Branding displays correctly
-- Layout customization works
-- PDF generation functional
+- Quote linked to lead via lead_quotes table
+- Lead pipeline updated with quote information
+- Quote value influences lead value calculations
+- Relationship integrity maintained
 
 ### Quote Workflow and Status Management
 
