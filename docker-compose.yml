@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # PostgreSQL for Django application
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: krayin_django
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # MySQL for Laravel application
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: krayin_laravel
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Migration Tracker Service
+  migration-tracker:
+    build: ./migration-tracker
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/krayin_django
+    volumes:
+      - ./migration-tracker:/app
+
+  # Selenium Grid Hub
+  selenium-hub:
+    image: selenium/hub:4.11.0
+    ports:
+      - "4444:4444"
+    environment:
+      - GRID_MAX_SESSION=16
+      - GRID_BROWSER_TIMEOUT=300
+      - GRID_TIMEOUT=300
+
+  # Chrome Node
+  selenium-chrome:
+    image: selenium/node-chrome:4.11.0
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+    volumes:
+      - /dev/shm:/dev/shm
+
+  # Firefox Node
+  selenium-firefox:
+    image: selenium/node-firefox:4.11.0
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+    volumes:
+      - /dev/shm:/dev/shm
+
+  # Redis for caching and session management
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:
+  mysql_data:

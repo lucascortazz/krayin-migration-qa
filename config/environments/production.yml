@@ -1,0 +1,70 @@
+environment: production
+debug: false
+
+applications:
+  laravel:
+    url: "https://laravel.krayin.com"
+    database:
+      host: "prod-mysql.krayin.com"
+      port: 3306
+      name: "krayin_laravel_prod"
+      user: "prod_user"
+      password: "${PROD_MYSQL_PASSWORD}"
+  
+  django:
+    url: "https://django.krayin.com"
+    database:
+      host: "prod-postgres.krayin.com"
+      port: 5432
+      name: "krayin_django_prod"
+      user: "prod_user"
+      password: "${PROD_POSTGRES_PASSWORD}"
+
+selenium:
+  grid_url: "http://selenium-grid.prod.krayin.com:4444/wd/hub"
+  implicit_wait: 20
+  explicit_wait: 60
+  headless: true
+  browser: "chrome"
+
+testing:
+  parallel_execution: true
+  max_workers: 8
+  screenshot_on_failure: true
+  video_recording: false
+  test_data_reset: false
+
+performance:
+  load_test_users: 100
+  load_test_duration: 600
+  max_page_load_time: 2.0
+  max_api_response_time: 1.0
+
+notifications:
+  slack_enabled: true
+  email_enabled: true
+  discord_enabled: true
+  slack_webhook: "${PROD_SLACK_WEBHOOK_URL}"
+  discord_webhook: "${PROD_DISCORD_WEBHOOK_URL}"
+
+migration_tracker:
+  host: "tracker.krayin.com"
+  port: 8080
+  websocket_port: 8081
+  real_time_updates: true
+
+logging:
+  level: "WARNING"
+  file_logging: true
+  console_logging: false
+
+security:
+  enable_security_scans: true
+  owasp_zap_url: "http://zap.prod.krayin.com:8090"
+  security_headers_check: true
+  ssl_certificate_check: true
+
+monitoring:
+  enable_monitoring: true
+  metrics_endpoint: "https://metrics.krayin.com"
+  alerting_enabled: true

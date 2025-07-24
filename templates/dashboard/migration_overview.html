@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Migration Overview - Krayin CRM Migration Tracker</title>
+    <link rel="stylesheet" href="../../static/css/migration-tracker.css">
+    <link rel="stylesheet" href="../../static/css/tooltip-system.css">
+    <link rel="icon" type="image/x-icon" href="../../static/images/favicon.ico">
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>Krayin CRM Migration Tracker</h1>
+            <p class="subtitle">Laravel to Django Migration Progress Dashboard</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="container">
+            <!-- Live Indicator -->
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>Live Updates</span>
+            </div>
+
+            <!-- Overall Progress -->
+            <div class="progress-container">
+                <h2>Overall Migration Progress</h2>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overall-progress-fill" style="width: 0%">
+                        <div class="progress-text" id="overall-progress-text">0% Complete</div>
+                    </div>
+                </div>
+                <p id="progress-summary">Migration in progress...</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card progress">
+                    <div class="icon">📊</div>
+                    <h3 id="overall-percentage">0%</h3>
+                    <p>Overall Progress</p>
+                </div>
+                <div class="stat-card completed">
+                    <div class="icon">✅</div>
+                    <h3 id="completed-count">0</h3>
+                    <p>Components Completed</p>
+                </div>
+                <div class="stat-card in-progress">
+                    <div class="icon">🔄</div>
+                    <h3 id="in-progress-count">0</h3>
+                    <p>In Progress</p>
+                </div>
+                <div class="stat-card pending">
+                    <div class="icon">⏳</div>
+                    <h3 id="pending-count">0</h3>
+                    <p>Pending</p>
+                </div>
+            </div>
+
+            <!-- Components Grid -->
+            <div class="components-section">
+                <h2>Component Migration Status</h2>
+                <div class="components-grid" id="components-grid">
+                    <!-- Components will be loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="activity-header">
+                    <h3>Recent Migration Activity</h3>
+                </div>
+                <div class="activity-list" id="activity-list">
+                    <!-- Activities will be loaded dynamically -->
+                </div>
+            </div>
+
+            <!-- Migration Phase Timeline -->
+            <div class="timeline-section" style="margin-top: 2rem;">
+                <h2>Migration Timeline</h2>
+                <div class="migration-timeline" id="migration-timeline">
+                    <!-- Timeline will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Progress Indicator (Fixed Position) -->
+    <div id="migration-overall-progress" style="display: none;">
+        <div class="migration-overall-progress-bar">
+            <div class="migration-overall-progress-fill" style="width: 0%;"></div>
+        </div>
+        <div class="migration-overall-progress-text">0% Complete</div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../../static/js/migration-dashboard.js"></script>
+    <script src="../../tools/tooltip-system/tooltip_injector.js"></script>
+    <script src="../../tools/tooltip-system/migration_status.js"></script>
+    
+    <script>
+        // Initialize Dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const dashboard = new MigrationDashboard({
+                apiUrl: 'http://localhost:8080/api',
+                websocketUrl: 'ws://localhost:8081',
+                updateInterval: 5000
+            });
+
+            // Initialize tooltip system for dashboard components
+            const tooltips = new MigrationTooltipSystem({
+                websocketUrl: 'ws://localhost:8081',
+                apiUrl: 'http://localhost:8080/api',
+                showOnHover: true,
+                showOnClick: true
+            });
+
+            // Add migration component markers to dashboard elements
+            document.querySelectorAll('.component-card').forEach((card, index) => {
+                const componentName = card.getAttribute('data-component');
+                if (componentName) {
+                    card.setAttribute('data-migration-component', componentName);
+                }
+            });
+
+            // Show overall progress indicator after 2 seconds
+            setTimeout(() => {
+                const progressIndicator = document.getElementById('migration-overall-progress');
+                if (progressIndicator) {
+                    progressIndicator.style.display = 'block';
+                }
+            }, 2000);
+        });
+
+        // Custom component card template
+        function createComponentCard(component) {
+            const priorityClass = `priority-${component.priority}`;
+            const statusClass = `status-${component.status}`;
+            
+            return `
+                <div class="component-card ${priorityClass}" data-component="${component.name}" data-migration-component="${component.name}">
+                    <div class="component-header">
+                        <div class="component-title">${formatComponentName(component.name)}</div>
+                        <span class="status-badge ${statusClass}">${component.status}</span>
+                    </div>
+                    <div class="component-body">
+                        <div class="component-progress">
+                            <div class="component-progress-bar">
+                                <div class="component-progress-fill" style="width: ${component.progress || 0}%"></div>
+                            </div>
+                            <span class="progress-percentage">${component.progress || 0}%</span>
+                        </div>
+                        <div class="component-details">
+                            <div><strong>Priority:</strong> ${component.priority}</div>
+                            <div><strong>Effort:</strong> ${component.estimated_effort || 'TBD'}</div>
+                            ${component.issues && component.issues.length > 0 ? 
+                                `<div class="component-issues">
+                                    <strong>Issues:</strong> ${component.issues.length}
+                                    <span class="issue-indicator ${component.issues[0].severity}">!</span>
+                                </div>` : ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatComponentName(name) {
+            return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        // Test data for development
+        const testComponents = [
+            {
+                name: 'authentication',
+                status: 'completed',
+                priority: 'high',
+                progress: 100,
+                estimated_effort: '3 days'
+            },
+            {
+                name: 'leads',
+                status: 'in_progress',
+                priority: 'high',
+                progress: 75,
+                estimated_effort: '5 days',
+                issues: [{ severity: 'medium', description: 'Form validation needs adjustment' }]
+            },
+            {
+                name: 'contacts',
+                status: 'in_progress',
+                priority: 'medium',
+                progress: 45,
+                estimated_effort: '4 days'
+            },
+            {
+                name: 'deals',
+                status: 'pending',
+                priority: 'medium',
+                progress: 0,
+                estimated_effort: '6 days'
+            },
+            {
+                name: 'activities',
+                status: 'pending',
+                priority: 'low',
+                progress: 0,
+                estimated_effort: '4 days'
+            },
+            {
+                name: 'api_endpoints',
+                status: 'in_progress',
+                priority: 'high',
+                progress: 30,
+                estimated_effort: '7 days'
+            }
+        ];
+
+        // Load test data for demonstration
+        function loadTestData() {
+            const componentsGrid = document.getElementById('components-grid');
+            if (componentsGrid) {
+                componentsGrid.innerHTML = testComponents.map(createComponentCard).join('');
+            }
+
+            // Update statistics
+            const completed = testComponents.filter(c => c.status === 'completed').length;
+            const inProgress = testComponents.filter(c => c.status === 'in_progress').length;
+            const pending = testComponents.filter(c => c.status === 'pending').length;
+            const overallProgress = Math.round(
+                testComponents.reduce((sum, c) => sum + (c.progress || 0), 0) / testComponents.length
+            );
+
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('in-progress-count').textContent = inProgress;
+            document.getElementById('pending-count').textContent = pending;
+            document.getElementById('overall-percentage').textContent = `${overallProgress}%`;
+            
+            const progressFill = document.getElementById('overall-progress-fill');
+            const progressText = document.getElementById('overall-progress-text');
+            if (progressFill && progressText) {
+                progressFill.style.width = `${overallProgress}%`;
+                progressText.textContent = `${overallProgress}% Complete`;
+            }
+
+            // Add tooltip markers after loading components
+            setTimeout(() => {
+                document.querySelectorAll('.component-card').forEach(card => {
+                    const componentName = card.getAttribute('data-component');
+                    if (componentName) {
+                        card.setAttribute('data-migration-tooltip', componentName);
+                    }
+                });
+            }, 100);
+        }
+
+        // Load test data when DOM is ready
+        document.addEventListener('DOMContentLoaded', loadTestData);
+    </script>
+
+    <style>
+        /* Additional styles for the dashboard */
+        .issue-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            color: white;
+            font-size: 8px;
+            text-align: center;
+            line-height: 12px;
+            margin-left: 4px;
+        }
+
+        .issue-indicator.high {
+            background: #e74c3c;
+        }
+
+        .issue-indicator.medium {
+            background: #f39c12;
+        }
+
+        .issue-indicator.low {
+            background: #3498db;
+        }
+
+        .component-issues {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .progress-percentage {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 8px;
+        }
+
+        .migration-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .timeline-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .timeline-completed {
+            background: #27ae60;
+            color: white;
+        }
+
+        .timeline-current {
+            background: #f39c12;
+            color: white;
+        }
+
+        .timeline-pending {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        /* Component card hover effects */
+        .component-card {
+            cursor: pointer;
+            position: relative;
+        }
+
+        .component-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(52, 152, 219, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .component-card:hover::after {
+            opacity: 1;
+        }
+    </style>
+</body>
+</html>

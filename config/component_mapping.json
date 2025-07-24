@@ -1,0 +1,167 @@
+{
+  "components": {
+    "authentication": {
+      "laravel": {
+        "controller": "AuthController",
+        "model": "User",
+        "views": ["login.blade.php", "register.blade.php"],
+        "routes": ["/login", "/register", "/logout"],
+        "middleware": ["auth", "guest"],
+        "database_tables": ["users", "password_resets"]
+      },
+      "django": {
+        "views": ["LoginView", "RegisterView", "LogoutView"],
+        "models": ["User", "PasswordReset"],
+        "templates": ["login.html", "register.html"],
+        "urls": ["/login/", "/register/", "/logout/"],
+        "middleware": ["AuthenticationMiddleware"],
+        "database_tables": ["auth_user", "password_reset_tokens"]
+      },
+      "status": "pending",
+      "priority": "high",
+      "estimated_effort": "3 days"
+    },
+    "leads": {
+      "laravel": {
+        "controller": "LeadController",
+        "model": "Lead",
+        "views": ["leads/index.blade.php", "leads/create.blade.php", "leads/edit.blade.php"],
+        "routes": ["/leads", "/leads/create", "/leads/{id}/edit"],
+        "database_tables": ["leads", "lead_sources", "lead_types"]
+      },
+      "django": {
+        "views": ["LeadListView", "LeadCreateView", "LeadUpdateView"],
+        "models": ["Lead", "LeadSource", "LeadType"],
+        "templates": ["leads/list.html", "leads/form.html"],
+        "urls": ["/leads/", "/leads/create/", "/leads/<int:pk>/edit/"],
+        "database_tables": ["crm_leads", "crm_lead_sources", "crm_lead_types"]
+      },
+      "status": "in_progress",
+      "priority": "high",
+      "estimated_effort": "5 days"
+    },
+    "contacts": {
+      "laravel": {
+        "controller": "ContactController",
+        "model": "Contact",
+        "views": ["contacts/index.blade.php", "contacts/create.blade.php"],
+        "routes": ["/contacts", "/contacts/create"],
+        "database_tables": ["contacts", "contact_types"]
+      },
+      "django": {
+        "views": ["ContactListView", "ContactCreateView"],
+        "models": ["Contact", "ContactType"],
+        "templates": ["contacts/list.html", "contacts/form.html"],
+        "urls": ["/contacts/", "/contacts/create/"],
+        "database_tables": ["crm_contacts", "crm_contact_types"]
+      },
+      "status": "pending",
+      "priority": "medium",
+      "estimated_effort": "4 days"
+    },
+    "deals": {
+      "laravel": {
+        "controller": "DealController",
+        "model": "Deal",
+        "views": ["deals/index.blade.php", "deals/kanban.blade.php"],
+        "routes": ["/deals", "/deals/kanban"],
+        "database_tables": ["deals", "deal_stages", "deal_products"]
+      },
+      "django": {
+        "views": ["DealListView", "DealKanbanView"],
+        "models": ["Deal", "DealStage", "DealProduct"],
+        "templates": ["deals/list.html", "deals/kanban.html"],
+        "urls": ["/deals/", "/deals/kanban/"],
+        "database_tables": ["crm_deals", "crm_deal_stages", "crm_deal_products"]
+      },
+      "status": "pending",
+      "priority": "medium",
+      "estimated_effort": "6 days"
+    },
+    "activities": {
+      "laravel": {
+        "controller": "ActivityController",
+        "model": "Activity",
+        "views": ["activities/index.blade.php", "activities/calendar.blade.php"],
+        "routes": ["/activities", "/activities/calendar"],
+        "database_tables": ["activities", "activity_types"]
+      },
+      "django": {
+        "views": ["ActivityListView", "ActivityCalendarView"],
+        "models": ["Activity", "ActivityType"],
+        "templates": ["activities/list.html", "activities/calendar.html"],
+        "urls": ["/activities/", "/activities/calendar/"],
+        "database_tables": ["crm_activities", "crm_activity_types"]
+      },
+      "status": "pending",
+      "priority": "low",
+      "estimated_effort": "4 days"
+    },
+    "api_endpoints": {
+      "laravel": {
+        "routes": [
+          "/api/leads",
+          "/api/contacts",
+          "/api/deals",
+          "/api/activities",
+          "/api/auth/login",
+          "/api/auth/logout"
+        ],
+        "controllers": ["API\\LeadController", "API\\ContactController", "API\\AuthController"]
+      },
+      "django": {
+        "urls": [
+          "/api/v1/leads/",
+          "/api/v1/contacts/",
+          "/api/v1/deals/",
+          "/api/v1/activities/",
+          "/api/v1/auth/login/",
+          "/api/v1/auth/logout/"
+        ],
+        "viewsets": ["LeadViewSet", "ContactViewSet", "DealViewSet", "ActivityViewSet"],
+        "serializers": ["LeadSerializer", "ContactSerializer", "DealSerializer"]
+      },
+      "status": "pending",
+      "priority": "high",
+      "estimated_effort": "7 days"
+    }
+  },
+  "database_mapping": {
+    "users": "auth_user",
+    "leads": "crm_leads",
+    "contacts": "crm_contacts",
+    "deals": "crm_deals",
+    "activities": "crm_activities",
+    "lead_sources": "crm_lead_sources",
+    "contact_types": "crm_contact_types",
+    "deal_stages": "crm_deal_stages"
+  },
+  "field_mappings": {
+    "users": {
+      "id": "id",
+      "name": "first_name",
+      "email": "email",
+      "password": "password",
+      "created_at": "date_joined",
+      "updated_at": "last_modified"
+    },
+    "leads": {
+      "id": "id",
+      "title": "title",
+      "first_name": "first_name",
+      "last_name": "last_name",
+      "email": "email",
+      "phone": "phone",
+      "organization": "company",
+      "lead_source_id": "source_id",
+      "created_at": "created_at",
+      "updated_at": "updated_at"
+    }
+  },
+  "migration_notes": {
+    "authentication": "Laravel uses default Auth scaffolding, Django uses built-in auth system",
+    "database": "MySQL to PostgreSQL migration required",
+    "api": "Laravel API routes need to be converted to Django REST framework",
+    "templates": "Blade templates need conversion to Django templates"
+  }
+}

@@ -1,0 +1,57 @@
+environment: local
+debug: true
+
+applications:
+  laravel:
+    url: "http://localhost:8000"
+    database:
+      host: "localhost"
+      port: 3306
+      name: "krayin_laravel_local"
+      user: "root"
+      password: "password"
+  
+  django:
+    url: "http://localhost:8001"
+    database:
+      host: "localhost"
+      port: 5432
+      name: "krayin_django_local"
+      user: "postgres"
+      password: "password"
+
+selenium:
+  grid_url: "http://localhost:4444/wd/hub"
+  implicit_wait: 10
+  explicit_wait: 30
+  headless: false
+  browser: "chrome"
+
+testing:
+  parallel_execution: false
+  max_workers: 2
+  screenshot_on_failure: true
+  video_recording: false
+  test_data_reset: true
+
+performance:
+  load_test_users: 5
+  load_test_duration: 60
+  max_page_load_time: 5.0
+  max_api_response_time: 2.0
+
+notifications:
+  slack_enabled: false
+  email_enabled: true
+  discord_enabled: false
+
+migration_tracker:
+  host: "localhost"
+  port: 8080
+  websocket_port: 8081
+  real_time_updates: true
+
+logging:
+  level: "DEBUG"
+  file_logging: true
+  console_logging: true

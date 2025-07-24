@@ -1,0 +1,62 @@
+environment: staging
+debug: false
+
+applications:
+  laravel:
+    url: "https://staging-laravel.krayin.com"
+    database:
+      host: "staging-mysql.krayin.com"
+      port: 3306
+      name: "krayin_laravel_staging"
+      user: "staging_user"
+      password: "${STAGING_MYSQL_PASSWORD}"
+  
+  django:
+    url: "https://staging-django.krayin.com"
+    database:
+      host: "staging-postgres.krayin.com"
+      port: 5432
+      name: "krayin_django_staging"
+      user: "staging_user"
+      password: "${STAGING_POSTGRES_PASSWORD}"
+
+selenium:
+  grid_url: "http://selenium-grid.staging.krayin.com:4444/wd/hub"
+  implicit_wait: 15
+  explicit_wait: 45
+  headless: true
+  browser: "chrome"
+
+testing:
+  parallel_execution: true
+  max_workers: 4
+  screenshot_on_failure: true
+  video_recording: true
+  test_data_reset: false
+
+performance:
+  load_test_users: 25
+  load_test_duration: 300
+  max_page_load_time: 3.0
+  max_api_response_time: 1.5
+
+notifications:
+  slack_enabled: true
+  email_enabled: true
+  discord_enabled: false
+  slack_webhook: "${SLACK_WEBHOOK_URL}"
+
+migration_tracker:
+  host: "staging-tracker.krayin.com"
+  port: 8080
+  websocket_port: 8081
+  real_time_updates: true
+
+logging:
+  level: "INFO"
+  file_logging: true
+  console_logging: false
+
+security:
+  enable_security_scans: true
+  owasp_zap_url: "http://zap.staging.krayin.com:8090"

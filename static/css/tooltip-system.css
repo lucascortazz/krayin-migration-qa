@@ -1,0 +1,675 @@
+/* Migration Tooltip System CSS */
+
+.migration-status-indicator {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    z-index: 1000;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.migration-status-indicator:hover {
+    transform: scale(1.2);
+}
+
+.migration-progress-ring {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.migration-progress-ring svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.migration-status-completed .migration-progress-ring {
+    color: #27ae60;
+}
+
+.migration-status-in_progress .migration-progress-ring {
+    color: #f39c12;
+}
+
+.migration-status-pending .migration-progress-ring {
+    color: #e74c3c;
+}
+
+.migration-status-testing .migration-progress-ring {
+    color: #3498db;
+}
+
+.migration-status-pulse {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    animation: migration-status-pulse 2s infinite;
+}
+
+.migration-status-in_progress .migration-status-pulse {
+    background: rgba(243, 156, 18, 0.3);
+}
+
+.migration-status-pending .migration-status-pulse {
+    background: rgba(231, 76, 60, 0.3);
+}
+
+.migration-status-testing .migration-status-pulse {
+    background: rgba(52, 152, 219, 0.3);
+}
+
+@keyframes migration-status-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    70% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+/* Migration Tooltips */
+.migration-tooltip {
+    position: absolute;
+    background: white;
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    padding: 0;
+    max-width: 350px;
+    min-width: 280px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    z-index: 10000;
+    backdrop-filter: blur(10px);
+}
+
+.migration-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+}
+
+.migration-tooltip-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.migration-tooltip-hiding {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.migration-tooltip-header {
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid #f0f3f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 12px 12px 0 0;
+}
+
+.migration-tooltip-title {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.migration-component-name {
+    font-weight: 600;
+    color: #1a202c;
+    font-size: 16px;
+    line-height: 1.2;
+}
+
+.migration-status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.migration-status-completed {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+
+.migration-status-in_progress {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+
+.migration-status-pending {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+
+.migration-status-testing {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+}
+
+.migration-tooltip-close {
+    border: none;
+    background: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #a0aec0;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.migration-tooltip-close:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.migration-tooltip-body {
+    padding: 16px 20px 20px;
+}
+
+.migration-progress-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.migration-progress-bar {
+    flex: 1;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.migration-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.migration-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 20px 20px;
+    animation: migration-progress-animation 2s linear infinite;
+}
+
+@keyframes migration-progress-animation {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 20px 20px;
+    }
+}
+
+.migration-progress-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    min-width: 40px;
+    text-align: right;
+}
+
+.migration-details {
+    margin-bottom: 16px;
+    display: grid;
+    gap: 10px;
+}
+
+.migration-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.migration-detail-item:last-child {
+    border-bottom: none;
+}
+
+.migration-detail-item strong {
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.migration-priority {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.migration-priority-high {
+    background: #fed7d7;
+    color: #c53030;
+}
+
+.migration-priority-medium {
+    background: #feebc8;
+    color: #dd6b20;
+}
+
+.migration-priority-low {
+    background: #c6f6d5;
+    color: #38a169;
+}
+
+.migration-issues-list {
+    margin: 8px 0 0 0;
+    padding: 0;
+    list-style: none;
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.migration-issue {
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.migration-issue-high {
+    background: #fed7d7;
+    color: #c53030;
+    border-left: 3px solid #e53e3e;
+}
+
+.migration-issue-medium {
+    background: #feebc8;
+    color: #dd6b20;
+    border-left: 3px solid #ed8936;
+}
+
+.migration-issue-low {
+    background: #e6fffa;
+    color: #319795;
+    border-left: 3px solid #4fd1c7;
+}
+
+.migration-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.migration-btn {
+    padding: 8px 16px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #4a5568;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.migration-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+}
+
+.migration-btn:first-child {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.migration-btn:first-child:hover {
+    background: #5a67d8;
+    border-color: #5a67d8;
+}
+
+/* Notifications */
+.migration-notifications-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10001;
+    pointer-events: none;
+    max-width: 400px;
+}
+
+.migration-notification {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    margin-bottom: 12px;
+    padding: 0;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    pointer-events: auto;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.migration-notification-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.migration-notification-hiding {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.migration-notification-content {
+    padding: 16px;
+}
+
+.migration-notification-title {
+    font-weight: 600;
+    color: #1a202c;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.migration-notification-message {
+    color: #4a5568;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.migration-notification-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.migration-notification-action {
+    padding: 6px 12px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: #4a5568;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.migration-notification-action:hover {
+    background: #f7fafc;
+}
+
+.migration-notification-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: #a0aec0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.migration-notification-close:hover {
+    background: #f7fafc;
+    color: #4a5568;
+}
+
+.migration-notification-success {
+    border-left: 4px solid #38a169;
+}
+
+.migration-notification-info {
+    border-left: 4px solid #3182ce;
+}
+
+.migration-notification-warning {
+    border-left: 4px solid #d69e2e;
+}
+
+.migration-notification-error {
+    border-left: 4px solid #e53e3e;
+}
+
+/* Connection Indicator */
+.migration-connection-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 9999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.migration-connection-indicator::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.migration-connection-connected {
+    background: rgba(56, 161, 105, 0.9);
+    color: white;
+}
+
+.migration-connection-disconnected {
+    background: rgba(229, 62, 62, 0.9);
+    color: white;
+}
+
+.migration-connection-error {
+    background: rgba(214, 158, 46, 0.9);
+    color: white;
+}
+
+/* Overall Progress Indicator */
+#migration-overall-progress {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 9998;
+    backdrop-filter: blur(10px);
+}
+
+.migration-overall-progress-bar {
+    width: 200px;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.migration-overall-progress-bar .migration-overall-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+
+.migration-overall-progress-text {
+    font-size: 12px;
+    color: #4a5568;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .migration-tooltip {
+        max-width: 300px;
+        min-width: 250px;
+    }
+    
+    .migration-notifications-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .migration-notification {
+        margin-bottom: 8px;
+    }
+    
+    .migration-connection-indicator {
+        right: 10px;
+    }
+    
+    #migration-overall-progress {
+        left: 10px;
+    }
+    
+    .migration-overall-progress-bar {
+        width: 150px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .migration-tooltip {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .migration-tooltip::before {
+        border-bottom-color: #2d3748;
+    }
+    
+    .migration-tooltip-header {
+        background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        border-bottom-color: #4a5568;
+    }
+    
+    .migration-component-name {
+        color: #f7fafc;
+    }
+    
+    .migration-progress-container {
+        background: #1a202c;
+    }
+    
+    .migration-progress-bar {
+        background: #4a5568;
+    }
+    
+    .migration-detail-item {
+        border-bottom-color: #4a5568;
+    }
+    
+    .migration-detail-item strong {
+        color: #f7fafc;
+    }
+    
+    .migration-btn {
+        background: #4a5568;
+        color: #e2e8f0;
+        border-color: #718096;
+    }
+    
+    .migration-btn:hover {
+        background: #718096;
+    }
+    
+    .migration-notification {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    .migration-notification-title {
+        color: #f7fafc;
+    }
+    
+    .migration-notification-message {
+        color: #e2e8f0;
+    }
+    
+    #migration-overall-progress {
+        background: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    .migration-overall-progress-text {
+        color: #e2e8f0;
+    }
+}
